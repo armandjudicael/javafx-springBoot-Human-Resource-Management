@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane fx:id="employeListPane" prefHeight="603.0" prefWidth="614.0" style="-fx-background-color: whitesmoke;" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Label layoutX="41.0" layoutY="36.0" prefHeight="17.0" prefWidth="39.0" text="Nom :" AnchorPane.leftAnchor="41.0" />
+      <TextField fx:id="nom" layoutX="202.0" layoutY="29.0" prefHeight="32.0" prefWidth="380.0" AnchorPane.leftAnchor="202.0" />
+      <Label layoutX="41.0" layoutY="82.0" prefHeight="17.0" prefWidth="53.0" text="Prenom :" AnchorPane.leftAnchor="41.0" />
+      <TextField fx:id="prenom" layoutX="202.0" layoutY="75.0" prefHeight="32.0" prefWidth="380.0" AnchorPane.leftAnchor="202.0" />
+      <Label layoutX="41.0" layoutY="166.0" prefHeight="17.0" prefWidth="76.0" text="N° Matricule  :" AnchorPane.leftAnchor="41.0" />
+      <Label layoutX="41.0" layoutY="220.0" prefHeight="17.0" prefWidth="150.0" text="Date et lieu de naissance  :" AnchorPane.leftAnchor="41.0" />
+      <TextField fx:id="matricule" layoutX="202.0" layoutY="159.0" prefHeight="32.0" prefWidth="380.0" AnchorPane.leftAnchor="202.0" />
+      <DatePicker fx:id="dateNaissance" layoutX="202.0" layoutY="212.0" prefHeight="32.0" prefWidth="150.0" AnchorPane.leftAnchor="202.0" />
+      <TextField fx:id="lieuNaissance" layoutX="425.0" layoutY="212.0" prefHeight="32.0" prefWidth="158.0" AnchorPane.leftAnchor="425.0" />
+      <DatePicker fx:id="dateEntre" layoutX="202.0" layoutY="308.0" prefHeight="32.0" prefWidth="380.0" AnchorPane.leftAnchor="202.0" />
+      <Label layoutX="41.0" layoutY="316.0" prefHeight="17.0" prefWidth="76.0" text="Date entré   :" AnchorPane.leftAnchor="41.0" />
+      <Button fx:id="enregisterBtn" layoutX="206.0" layoutY="542.0" mnemonicParsing="false" prefHeight="32.0" prefWidth="380.0" text="enregistrer" AnchorPane.bottomAnchor="29.0" AnchorPane.leftAnchor="206.0" />
+      <Label layoutX="41.0" layoutY="377.0" prefHeight="17.0" prefWidth="76.0" text="Classe  :" AnchorPane.leftAnchor="41.0" />
+      <Label layoutX="357.0" layoutY="370.0" prefHeight="17.0" prefWidth="63.0" text="Echélon  :" AnchorPane.leftAnchor="357.0" />
+      <Label layoutX="41.0" layoutY="122.0" prefHeight="17.0" prefWidth="39.0" text="Sexe :" AnchorPane.leftAnchor="41.0" />
+      <RadioButton fx:id="femininRadio" layoutX="206.0" layoutY="122.0" mnemonicParsing="false" selected="true" text="Féminin" AnchorPane.leftAnchor="206.0">
+         <toggleGroup>
+            <ToggleGroup fx:id="sexeRadio" />
+         </toggleGroup>
+      </RadioButton>
+      <RadioButton fx:id="masculinRadio" layoutX="320.0" layoutY="122.0" mnemonicParsing="false" text="Masculin" toggleGroup="$sexeRadio" AnchorPane.leftAnchor="320.0" />
+      <ComboBox fx:id="classeCombo" layoutX="202.0" layoutY="361.0" prefHeight="32.0" prefWidth="132.0" />
+      <ComboBox fx:id="echelonCombo" layoutX="432.0" layoutY="362.0" prefHeight="32.0" prefWidth="150.0" />
+      <Label layoutX="42.0" layoutY="423.0" prefHeight="17.0" prefWidth="76.0" text="Position :" />
+      <ComboBox fx:id="positionCombo" layoutX="206.0" layoutY="415.0" prefHeight="32.0" prefWidth="380.0" />
+      <Label layoutX="41.0" layoutY="486.0" prefHeight="17.0" prefWidth="53.0" text="Sortie   :" />
+      <ComboBox layoutX="436.0" layoutY="478.0" prefHeight="32.0" prefWidth="150.0" />
+      <DatePicker fx:id="dateEntre1" layoutX="206.0" layoutY="478.0" prefHeight="32.0" prefWidth="132.0" />
+      <Label layoutX="41.0" layoutY="271.0" prefHeight="17.0" prefWidth="76.0" text="Categorie  :" />
+      <RadioButton fx:id="femininRadio1" layoutX="206.0" layoutY="271.0" mnemonicParsing="false" text="Fonctionnaire">
+         <toggleGroup>
+            <ToggleGroup fx:id="CategorieRadio" />
+         </toggleGroup>
+      </RadioButton>
+      <RadioButton fx:id="femininRadio11" layoutX="326.0" layoutY="271.0" mnemonicParsing="false" selected="true" text="Agent contractuelle" toggleGroup="$CategorieRadio" />
+      <Label layoutX="373.0" layoutY="486.0" prefHeight="17.0" prefWidth="53.0" text="Motif  :" />
+   </children>
+</AnchorPane>

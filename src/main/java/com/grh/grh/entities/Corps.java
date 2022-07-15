@@ -1,2 +1,4 @@
-package com.grh.grh.entities;public class Corps {
+package com.grh.grh.entities;
+
+public class Corps {
 }
