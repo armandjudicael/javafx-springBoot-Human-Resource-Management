@@ -7,7 +7,9 @@ import javafx.scene.image.ImageView;
 import javafx.stage.Modality;
 
 public class AlertDialog extends Alert{
+
     private static AlertDialog dialog;
+
     public AlertDialog(AlertType alertType) {
         super(alertType);
         imageView = new ImageView();

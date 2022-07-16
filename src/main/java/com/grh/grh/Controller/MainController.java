@@ -1,55 +1,66 @@
 package com.grh.grh.Controller;
 
 import com.grh.grh.entities.Personnel;
-import com.grh.grh.entities.Sexe;
 import com.grh.grh.view.AlertDialog;
+import com.grh.grh.view.EmployeFormView;
 import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
+import lombok.Data;
 
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
-public class MainController implements Initializable {
+@Data
+public class MainController implements Initializable{
+    public static MainController getMainController() {
+        return mainController;
+    }
+    private static MainController mainController;
+    @FXML private TableColumn<Personnel,String> dateSortieCol;
+    @FXML private TableColumn<Personnel,String> motifSortieCol;
+    @FXML private Button nouveauConge;
+    @FXML private Button retourBtn1;
+    @FXML private TableView congeTableView;
+    @FXML private Button retourBtn;
+    @FXML private Button nouveauBtn;
+    @FXML private TableColumn<Personnel,String> fonctionCol;
     @FXML private TableColumn<Personnel,String> naissanceCol;
     @FXML private TableView<Personnel> tableView;
     @FXML private TableColumn<Personnel,String> nomCol;
-    @FXML private TableColumn<Personnel,String> classeCol;
+    @FXML private TableColumn<Personnel,String> dateEntrerCol;
     @FXML private TableColumn<Personnel,String> echelonCol;
     @FXML private TableColumn<Personnel,String> soldeCol;
     @FXML private TableColumn<Personnel,String> matriculeCol;
-    @FXML private TableColumn<Personnel, String> position;
-    @FXML private TextField nom;
-    @FXML private TextField prenom;
-    @FXML private TextField matricule;
-    @FXML private DatePicker dateNaissance;
-    @FXML private TextField lieuNaissance;
-    @FXML private DatePicker dateEntre;
-    @FXML private Button enregisterBtn;
-    @FXML private RadioButton femininRadio;
-    @FXML private RadioButton masculinRadio;
-    @FXML private ToggleGroup sexeRadio;
-    @FXML private ComboBox<String> classeCombo;
-    @FXML private ComboBox<String> echelonCombo;
-    @FXML private ComboBox<String> positionCombo;
+    @FXML private TableColumn<Personnel, String> positionCol;
+    @FXML private TextField textFieldFilter;
+    @FXML private Button searchBtn;
+    @FXML private DatePicker dateFilter;
     @FXML private AnchorPane employeListPane;
     @FXML private AnchorPane congePane;
-
-    private final String[] ECHELON_A ={"A1","A2","A3"};
-    private final String[] ECHELON_B ={"B1","B2"};
-    private final String[] ECHELON_C ={"C1","C2"};
-    private final String[] ECHELON_D ={"D1","D2","D3"};
     private static ContextMenu contextMenu;
     private static Boolean isSave = true;
+
+    private void  initFilter(){
+        dateFilter.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue!=null){
+                ObservableList<Personnel> items = tableView.getItems();
+                List<Personnel> collect = items.stream().filter(personnel -> personnel.getDateEntre().equals(newValue)).collect(Collectors.toList());
+                if (!collect.isEmpty()) tableView.getItems().setAll(collect);
+            }
+        });
+    }
 
     private void initTableView(){
         nomCol.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Personnel, String>, ObservableValue<String>>() {
@@ -83,7 +94,7 @@ public class MainController implements Initializable {
                 };
             }
         });
-        classeCol.setCellValueFactory(param -> new ObservableValue<String>() {
+        dateEntrerCol.setCellValueFactory(param -> new ObservableValue<String>() {
             @Override
             public void addListener(ChangeListener<? super String> listener) {
 
@@ -96,7 +107,8 @@ public class MainController implements Initializable {
 
             @Override
             public String getValue() {
-                return  param.getValue().getClasse();
+                LocalDate dateEntre = param.getValue().getDateEntre();
+                return  dateEntre == null ? LocalDate.now().toString() : dateEntre.toString() ;
             }
 
             @Override
@@ -122,7 +134,7 @@ public class MainController implements Initializable {
 
             @Override
             public String getValue() {
-                return param.getValue().getSolde();
+                return String.valueOf(param.getValue().getSolde());
             }
 
             @Override
@@ -225,7 +237,7 @@ public class MainController implements Initializable {
 
             }
         });
-        position.setCellValueFactory(param -> new ObservableValue<String>() {
+        positionCol.setCellValueFactory(param -> new ObservableValue<String>() {
             @Override
             public void addListener(ChangeListener<? super String> listener) {
 
@@ -251,28 +263,47 @@ public class MainController implements Initializable {
 
             }
         });
-    }
+        fonctionCol.setCellValueFactory(param -> new ObservableValue<String>() {
+            @Override
+            public void addListener(ChangeListener<? super String> listener) {
 
-    private void initCombobox(){
-        // CLASSE ET ECHELON
-        List<String> list = List.of("A", "B", "C", "D");
-        classeCombo.getItems().addAll(FXCollections.observableArrayList(list));
-        classeCombo.getSelectionModel().selectedItemProperty().addListener(this::updateEchelonCombo);
-        // POSITION
-        List<String> positionList = List.of("en activité", "en détachement", "hors cadre", "sous le drapeau","en disponibilité");
-        positionCombo.getItems().addAll(FXCollections.observableArrayList(positionList));
+            }
+
+            @Override
+            public void removeListener(ChangeListener<? super String> listener) {
+
+            }
+
+            @Override
+            public String getValue() {
+                return param.getValue().getFonction();
+            }
+
+            @Override
+            public void addListener(InvalidationListener listener) {
+
+            }
+
+            @Override
+            public void removeListener(InvalidationListener listener) {
+
+            }
+        });
     }
 
     private void initButton(){
-        enregisterBtn.setOnAction(this::saveEmploye);
+        nouveauBtn.setOnAction(event -> EmployeFormView.show());
+        retourBtn.setOnAction(event -> employeListPane.toFront());
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        mainController = this;
+        employeListPane.toFront();
         initializeContextMenu();
         initTableView();
-        initCombobox();
         initButton();
+        initFilter();
     }
 
     // CONTEXTUAL MENU
@@ -281,7 +312,7 @@ public class MainController implements Initializable {
         // SOLDE
         MenuItem soldeItem = new MenuItem("Solde");
         soldeItem.setOnAction(event -> {
-             congePane.toFront();
+            congePane.toFront();
         });
         // details
         MenuItem detailsMenuItem = new MenuItem("Editer");
@@ -293,32 +324,17 @@ public class MainController implements Initializable {
     }
 
     private void editEmployeAction(ActionEvent event) {
-        isSave = false;
-        Personnel selectedItem = tableView.getSelectionModel().getSelectedItem();
-        nom.setText(selectedItem.getNom());
-        prenom.setText(selectedItem.getPrenom());
-        classeCombo.getSelectionModel().select(selectedItem.getClasse());
-        dateEntre.setValue(selectedItem.getDateEntre());
-        dateNaissance.setValue(selectedItem.getDateNaissance());
-        lieuNaissance.setText(selectedItem.getLieuDeNaissance());
-        echelonCombo.getSelectionModel().select(selectedItem.getEchelon());
-    }
-
-    private void saveEmploye(ActionEvent event){
-        Personnel p = new Personnel();
-        p.setNom(nom.getText());
-        p.setPrenom(prenom.getText());
-        p.setClasse(classeCombo.getValue());
-        p.setEchelon(echelonCombo.getValue());
-        p.setMatricule(matricule.getText());
-        p.setPosition(positionCombo.getValue());
-        p.setSexe(femininRadio.isSelected() ? Sexe.FEMININ : Sexe.MASCULIN);
-        if (!isSave){
-            Personnel selectedItem = tableView.getSelectionModel().getSelectedItem();
-            tableView.getItems().remove(selectedItem);
-        }
-        tableView.getItems().add(p);
-        isSave = true;
+        EmployeFormController.setIsSave(false);
+        Personnel p = getTableView().getSelectionModel().getSelectedItem();
+        EmployeFormController efc = EmployeFormController.getEmployeFormController();
+        efc.getNom().setText(p.getNom());
+        efc.getPrenom().setText(p.getPrenom());
+        efc.getDateNaissance().setValue(p.getDateNaissance());
+        efc.getLieuNaissance().setText(p.getLieuDeNaissance());
+        efc.getFonction().setText(p.getFonction());
+        efc.getEchelonCombo().setValue(p.getEchelon());
+        efc.getPositionCombo().setValue(p.getPosition());
+        EmployeFormView.show();
     }
 
     private void deleteEmploye(ActionEvent event) {
@@ -329,26 +345,5 @@ public class MainController implements Initializable {
                 tableView.getItems().remove(selectedItem);
             }
         });
-    }
-
-    private void updateEchelonCombo(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-        switch (newValue) {
-            case "A": {
-                echelonCombo.getItems().setAll(List.of(ECHELON_A));
-            }
-            break;
-            case "B": {
-                echelonCombo.getItems().setAll(List.of(ECHELON_B));
-            }
-            break;
-            case "C": {
-                echelonCombo.getItems().setAll(List.of(ECHELON_C));
-            }
-            break;
-            case "D": {
-                echelonCombo.getItems().setAll(List.of(ECHELON_D));
-            }
-            break;
-        }
     }
 }
