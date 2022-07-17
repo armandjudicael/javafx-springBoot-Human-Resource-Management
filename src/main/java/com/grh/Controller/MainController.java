@@ -2,6 +2,7 @@ package com.grh.Controller;
 
 import com.grh.entities.*;
 import com.grh.other.MainService;
+import com.grh.repository.AutorisationAbsRepository;
 import com.grh.repository.PersonnelRepository;
 import com.grh.view.AlertDialog;
 import com.grh.view.FormDialog;
@@ -11,7 +12,6 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -22,7 +22,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 
 import java.net.URL;
@@ -35,9 +34,11 @@ import java.util.stream.IntStream;
 @Data
 @Controller
 public class MainController implements Initializable{
+
     public static MainController getMainController() {
         return mainController;
     }
+
     private void  initFilter(){
         dateFilter.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue!=null){
@@ -47,6 +48,7 @@ public class MainController implements Initializable{
             }
         });
     }
+
     private void initTableView(){
         //  EMPLOYE
         nomCol.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Personnel, String>, ObservableValue<String>>() {
@@ -202,6 +204,17 @@ public class MainController implements Initializable{
                 return tableRow;
             }
         });
+        absenceTableView.setRowFactory(new Callback<TableView<AutorisationAbsence>, TableRow<AutorisationAbsence>>() {
+            @Override public TableRow<AutorisationAbsence> call(TableView<AutorisationAbsence> param) {
+                final TableRow<AutorisationAbsence> tableRow = new TableRow<>();
+                tableRow.contextMenuProperty().bind(
+                        Bindings.when(
+                                Bindings.isNotNull(param.itemsProperty())).
+                                then(congeContextMenu).
+                                otherwise((ContextMenu) null));
+                return tableRow;
+            }
+        });
         naissanceCol.setCellValueFactory(param -> new ObservableValue<String>() {
             @Override
             public void addListener(ChangeListener<? super String> listener) {
@@ -331,7 +344,8 @@ public class MainController implements Initializable{
 
             @Override
             public String getValue() {
-                return param.getValue().getNature();
+                String nature = param.getValue().getNature();
+                return nature!=null ? nature : "";
             }
 
             @Override
@@ -444,6 +458,28 @@ public class MainController implements Initializable{
             }
         });
     }
+
+    private void deleteConge(ActionEvent event){
+        Personnel p = tableView.getSelectionModel().getSelectedItem();
+        AutorisationAbsence ab = absenceTableView.getSelectionModel().getSelectedItem();
+        AlertDialog alertDialog = AlertDialog.getInstance(Alert.AlertType.CONFIRMATION, "Etes-vous sur de vouloir supprimer cette autorisation d'absence ?");
+        alertDialog.showAndWait().ifPresent(buttonType -> {
+            if (buttonType.equals(ButtonType.YES) || buttonType.equals(ButtonType.OK)) {
+                mainService.launch(new Task<Void>() {
+                    @Override
+                    protected Void call() throws Exception {
+                        p.getAutorisationAbsences().remove(ab);
+                        return null;
+                    }
+                    @Override
+                    protected void succeeded() {
+                        absenceTableView.getItems().remove(ab);
+                    }
+                });
+            }
+        });
+    }
+
     private void initData(){
         mainService.launch(new Task<List<Personnel>>() {
             @Override
@@ -468,7 +504,9 @@ public class MainController implements Initializable{
             FormDialog.show(FormType.CONGE);
         });
         actualiserBtn.setOnAction(event -> initData());
+        actualiserBtnConge.setOnAction(this::refreshCongeTableView);
     }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         mainController = this;
@@ -479,11 +517,13 @@ public class MainController implements Initializable{
         initFilter();
         initData();
     }
-
     // CONTEXTUAL MENU
     private void initializeContextMenu() {
+        initEmployeContextMenu();
+        initCongeContextMenu();
+    }
+    private void initEmployeContextMenu() {
         employeContextMenu = new ContextMenu();
-        congeContextMenu = new ContextMenu();
         // SOLDE
         MenuItem soldeItem = new MenuItem("Solde de conge");
         soldeItem.setOnAction(this::showCongeSolde);
@@ -494,21 +534,53 @@ public class MainController implements Initializable{
         MenuItem deleteMenuItem = new MenuItem("Supprimer");
         deleteMenuItem.setOnAction(this::deleteAction);
         employeContextMenu.getItems().addAll(soldeItem,editMenuItem,deleteMenuItem);
-       // congeContextMenu.getItems().addAll(editMenuItem,deleteMenuItem);
+    }
+    private void initCongeContextMenu(){
+        congeContextMenu = new ContextMenu();
+        // details
+        MenuItem editMenuItem = new MenuItem("Editer");
+        editMenuItem.setOnAction(event -> {
+            FormDialog.show(FormType.CONGE);
+            initCongeEdit();
+        });
+        //supprimer
+        MenuItem deleteMenuItem = new MenuItem("Supprimer");
+        deleteMenuItem.setOnAction(this::deleteConge);
+        congeContextMenu.getItems().addAll(editMenuItem,deleteMenuItem);
+    }
+
+    private void initCongeEdit() {
+        AutorisationAbsence ab = absenceTableView.getSelectionModel().getSelectedItem();
+
+        CongeFormController controller = CongeFormController.getCongeFormController();
+        controller.getMotif().setText(ab.getMotif());
+        controller.getLieuDeJouissance().setText(ab.getLieuDeJouissance());
+        Durer durer = ab.getDurer();
+
+        controller.getDebutConge().setValue(durer.getDebut());
+        controller.getDureSpinner().getEditor().setText(String.valueOf(durer.getValue()));
+        controller.getUniteCombo().setValue(durer.getUnite().toString());
+        controller.getNatureCombo().setValue(ab.getNature());
+        typeAutorisation typeAutorisation = ab.getTypeAutorisation();
+
+        controller.getCongeRadio().setSelected(typeAutorisation == com.grh.entities.typeAutorisation.CONGE);
+        controller.getPermissionRadio().setSelected(typeAutorisation == com.grh.entities.typeAutorisation.PERMISSION);
+        controller.getAutorisationRadio().setSelected(typeAutorisation == com.grh.entities.typeAutorisation.DEFAULT);
     }
 
     private void editAction(ActionEvent event){
-        EmployeFormController.setIsSave(false);
         Personnel p = getTableView().getSelectionModel().getSelectedItem();
+        FormDialog.show(FormType.EMPLOYE);
         EmployeFormController efc = EmployeFormController.getEmployeFormController();
         efc.getNom().setText(p.getNom());
         efc.getPrenom().setText(p.getPrenom());
         efc.getDateNaissance().setValue(p.getDateNaissance());
         efc.getLieuNaissance().setText(p.getLieuDeNaissance());
         efc.getFonction().setText(p.getFonction());
+        efc.getMatricule().setText(p.getMatricule());
         efc.getEchelonCombo().setValue(p.getEchelon());
         efc.getPositionCombo().setValue(p.getPosition());
-        FormDialog.show(FormType.EMPLOYE);
+        EmployeFormController.setIsSave(false);
     }
     private void showCongeSolde(ActionEvent event) {
         Personnel p = tableView.getSelectionModel().getSelectedItem();
@@ -567,14 +639,25 @@ public class MainController implements Initializable{
     @FXML private AnchorPane employeListPane;
     @FXML private AnchorPane congePane;
     @FXML private Button nouveauCongeBtn;
-    @Autowired private PersonnelRepository personnelRepository;
     @FXML private Button actualiserBtn;
-    @Autowired
-    private MainService mainService;
+    @FXML private Button actualiserBtnConge;
+
+    @Autowired private PersonnelRepository personnelRepository;
+    @Autowired private AutorisationAbsRepository absRepository;
+    @Autowired private MainService mainService;
 
     private final int NOMBRE_TOTAL_CONGE = 45;
     private static MainController mainController;
     private static ContextMenu employeContextMenu;
     private static ContextMenu congeContextMenu;
     private static Boolean isSave = true;
+
+    private void refreshCongeTableView(ActionEvent event) {
+        Personnel p = tableView.getSelectionModel().getSelectedItem();
+        if (p != null) {
+            List<AutorisationAbsence> autorisationAbsences = p.getAutorisationAbsences();
+            if (autorisationAbsences!=null || !autorisationAbsences.isEmpty())
+                absenceTableView.getItems().setAll(autorisationAbsences);
+        }
+    }
 }

@@ -1,0 +1,20 @@
+<component name="ArtifactManager">
+  <artifact type="javafx" build-on-make="true" name="GRH">
+    <output-path>$PROJECT_DIR$/out/artifacts/GRH</output-path>
+    <properties id="javafx-properties">
+      <options>
+        <option name="appClass" value="com.grh.GrhApplication" />
+        <option name="description" value="" />
+        <option name="htmlPlaceholderId" value="" />
+        <option name="title" value="grh" />
+        <option name="vendor" value="grh" />
+        <option name="version" value="" />
+      </options>
+    </properties>
+    <root id="root">
+      <element id="archive" name="GRH.jar">
+        <element id="module-output" name="GRH" />
+      </element>
+    </root>
+  </artifact>
+</component>

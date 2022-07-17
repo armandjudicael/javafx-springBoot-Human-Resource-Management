@@ -50,6 +50,10 @@ public class EmployeFormController implements Initializable{
     @FXML private ToggleGroup CategorieRadio;
     @FXML private RadioButton agentContactuelleRadio;
 
+    public EmployeFormController() {
+        employeFormController = this;
+    }
+
     @Autowired
     private PersonnelRepository personnelRepository;
     @Autowired
@@ -92,6 +96,8 @@ public class EmployeFormController implements Initializable{
         if (!isSave){
             TableView<Personnel> tableView = controller.getTableView();
             Personnel p1 = tableView.getSelectionModel().getSelectedItem();
+            Long id = p1.getId();
+            p.setId(id);
             tableView.getItems().remove(p1);
         }
        mainService.launch(new Task<Personnel>() {

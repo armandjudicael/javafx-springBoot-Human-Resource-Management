@@ -9,6 +9,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class FormDialog {
+
     private static Stage stage;
     private static FormDialog formDialog;
     private Scene employeScene;
@@ -60,7 +61,7 @@ public class FormDialog {
                 e.printStackTrace();
             }
         }
-        stage.showAndWait();
+        stage.show();
     }
 
     public static void close(){

@@ -10,7 +10,7 @@
         "jdk": false,
         "javaVersion": "11",
         "jar": "target/GRH-1.0-SNAPSHOT.jar",
-        "javafx": true,
+        "javafx": false,
         "title": "GRH 1 0 SNAPSHOT"
     },
     "dependencies": {
@@ -18,7 +18,7 @@
         "shelljs": "^0.8.4"
     },
     "license": "ISC",
-    "name": "GRH-FX1.0",
+    "name": "GRH-SPRING-BOOT-FX1.0",
     "files": ["jdeploy-bundle"],
     "scripts": {"test": "echo \"Error: no test specified\" && exit 1"}
 }

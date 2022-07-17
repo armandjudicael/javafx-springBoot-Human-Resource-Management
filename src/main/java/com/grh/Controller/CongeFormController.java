@@ -40,6 +40,8 @@ public class CongeFormController implements Initializable {
     @FXML private DatePicker debutConge;
     @FXML private static CongeFormController congeFormController;
 
+    private static Boolean isSave = true;
+
     @Autowired
     private MainService mainService;
 
@@ -82,7 +84,7 @@ public class CongeFormController implements Initializable {
 
     private void initButton(){
         enregistrerBtn.setOnAction(this::enregistrerAutorisation);
-       // enregistrerBtn.disableProperty().bind(debutConge.valueProperty().isEqualTo(LocalDate.now()));
+        annulerBtn.setOnAction(event -> FormDialog.close());
     }
 
     @Override
@@ -109,9 +111,9 @@ public class CongeFormController implements Initializable {
         TableView<Personnel> employeTableView = controller.getTableView();
         Personnel p = employeTableView.getSelectionModel().getSelectedItem();
         List<AutorisationAbsence> absences = p.getAutorisationAbsences();
-        if (absences !=null)
+        if(absences !=null){
             absences.add(ab);
-        else p.setAutorisationAbsences(FXCollections.observableArrayList(ab));
+        } else p.setAutorisationAbsences(FXCollections.observableArrayList(ab));
         mainService.launch(new Task<AutorisationAbsence>() {
             @Override
             protected AutorisationAbsence call() throws Exception {
@@ -154,5 +156,12 @@ public class CongeFormController implements Initializable {
                 debut.plusMonths(durerValue) :
                 ( unite == Unite.ANNEE ? debut.plusYears(durerValue) : debut.plusDays(durerValue)));
         return durer;
+    }
+
+    public static Boolean getIsSave() {
+        return isSave;
+    }
+    public static void setIsSave(Boolean isSave) {
+        CongeFormController.isSave = isSave;
     }
 }

@@ -27,6 +27,7 @@ public class Personnel{
     private String position;
     private String fonction;
     private Regime regime;
+
     @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     List<AutorisationAbsence> autorisationAbsences;
 }

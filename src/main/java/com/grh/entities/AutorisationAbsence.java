@@ -12,7 +12,7 @@ public class AutorisationAbsence{
     private Long id;
     private String nature;
     private typeAutorisation typeAutorisation;
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
     private Durer durer;
     private String motif;
     private String lieuDeJouissance;

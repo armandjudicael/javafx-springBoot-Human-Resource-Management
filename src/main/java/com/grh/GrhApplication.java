@@ -22,13 +22,13 @@ import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
 
 @SpringBootApplication
 public class GrhApplication extends Application implements CommandLineRunner {
 
     private final SpringContext context = new SpringContext(this);
     private static ConfigurableApplicationContext ctx;
-
     public static ConfigurableApplicationContext getCtx() {
         return ctx;
     }
@@ -45,8 +45,6 @@ public class GrhApplication extends Application implements CommandLineRunner {
 
     @Override
     public void stop() throws Exception {
-        // Close this application context,
-        // destroys all beans in its bean factory
         ctx.close();
     }
 
@@ -83,22 +81,54 @@ public class GrhApplication extends Application implements CommandLineRunner {
         p1.setCategorieEmploye(CategorieEmploye.FONCTIONNAIRE);
         p1.setDateEntre(LocalDate.of(2016,2,2));
 
-        Durer durer = new Durer();
-        durer.setValue(2);
-        durer.setDebut(LocalDate.now());
-        durer.setUnite(Unite.JOURS);
-        durer.setFin(LocalDate.now().plusDays(2));
+        Personnel p2 = new Personnel();
+        p2.setNom("RAKOTOSON");
+        p2.setPrenom("Jean francois");
+        p2.setRegime(Regime.ANNUELLE_CUMULE);
+        p2.setDateNaissance(LocalDate.of(1990,10,10));
+        p2.setLieuDeNaissance("Fenerive-Est");
+        p2.setSexe(Sexe.MASCULIN);
+        p2.setFonction("delegue communale");
+        p2.setEchelon("D2");
+        p2.setCorps("Operateur");
+        p2.setClasse("D");
+        p2.setMatricule("156465");
+        p2.setPosition("en activité");
+        p2.setCategorieEmploye(CategorieEmploye.FONCTIONNAIRE);
+        p2.setDateEntre(LocalDate.of(2014,2,2));
 
-        AutorisationAbsence ab = new AutorisationAbsence();
-        ab.setMotif("Examen de mathématique financiere");
-        ab.setNature("Autorisation absence");
-        ab.setTypeAutorisation(typeAutorisation.DEFAULT);
-        ab.setLieuDeJouissance("Toamasina I");
-        ab.setDurer(durer);
+        Durer durer1 = new Durer();
+        durer1.setValue(2);
+        durer1.setDebut(LocalDate.now());
+        durer1.setUnite(Unite.JOURS);
+        durer1.setFin(LocalDate.now().plusDays(2));
 
-        ObservableList<AutorisationAbsence> autorisationAbsences = FXCollections.observableArrayList(ab);
-        p1.setAutorisationAbsences(autorisationAbsences);
+        Durer durer2= new Durer();
+        durer2.setValue(1);
+        durer2.setDebut(LocalDate.now());
+        durer2.setUnite(Unite.MOIS);
+        durer2.setFin(LocalDate.now().plusDays(1));
 
-        personnelRepository.save(p1);
+        AutorisationAbsence ab1 = new AutorisationAbsence();
+        ab1.setMotif("Examen de mathématique financiere");
+        ab1.setNature("Autorisation absence");
+        ab1.setTypeAutorisation(typeAutorisation.DEFAULT);
+        ab1.setLieuDeJouissance("Toamasina I");
+        ab1.setDurer(durer1);
+
+        AutorisationAbsence ab2 = new AutorisationAbsence();
+        ab2.setMotif("Accouchement de sa femme");
+        ab2.setNature("Congé de paternité");
+        ab2.setTypeAutorisation(typeAutorisation.CONGE);
+        ab2.setLieuDeJouissance("Toamasina I");
+        ab2.setDurer(durer2);
+
+        ObservableList<AutorisationAbsence> abs1 = FXCollections.observableArrayList(ab1);
+        p1.setAutorisationAbsences(abs1);
+
+        ObservableList<AutorisationAbsence> abs2 = FXCollections.observableArrayList(ab2);
+        p2.setAutorisationAbsences(abs2);
+
+        personnelRepository.saveAll(List.of(p1,p2));
     }
 }

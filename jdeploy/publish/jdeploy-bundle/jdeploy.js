@@ -9,7 +9,7 @@ var javaVersionString = "11";
 var tryJavaHomeFirst = false;
 var javafx = false;
 var bundleType = 'jre';
-if ('true' === 'true') {
+if ('{{JAVAFX}}' === 'true') {
     javafx = true;
 }
 if ('{{JDK}}' === 'true') {
