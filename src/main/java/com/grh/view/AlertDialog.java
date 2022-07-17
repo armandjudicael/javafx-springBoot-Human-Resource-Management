@@ -1,6 +1,5 @@
-package com.grh.grh.view;
+package com.grh.view;
 
-import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;

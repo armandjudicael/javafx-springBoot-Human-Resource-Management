@@ -1,4 +1,4 @@
-package com.grh.grh.entities;
+package com.grh.entities;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -16,7 +16,6 @@ public class Personnel{
     private String matricule;
     private String classe;
     private String echelon;
-    private Integer solde;
     private String corps;
     private LocalDate dateEntre;
     private LocalDate dateSortie;
@@ -28,7 +27,6 @@ public class Personnel{
     private String position;
     private String fonction;
     private Regime regime;
-
-    @OneToMany
-    List<Conge> conges;
+    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    List<AutorisationAbsence> autorisationAbsences;
 }

@@ -1,23 +1,31 @@
-package com.grh.grh.Controller;
+package com.grh.Controller;
 
-import com.grh.grh.entities.CategorieEmploye;
-import com.grh.grh.entities.Personnel;
-import com.grh.grh.entities.Regime;
-import com.grh.grh.entities.Sexe;
-import com.grh.grh.view.EmployeFormView;
+import com.grh.entities.Regime;
+import com.grh.entities.CategorieEmploye;
+import com.grh.entities.Personnel;
+import com.grh.entities.Sexe;
+import com.grh.other.MainService;
+import com.grh.repository.PersonnelRepository;
+import com.grh.view.FormDialog;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import lombok.Data;
+import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
 @Data
+@Controller
 public class EmployeFormController implements Initializable{
     private static EmployeFormController employeFormController;
     private static Boolean isSave = true;
@@ -41,6 +49,11 @@ public class EmployeFormController implements Initializable{
     @FXML private RadioButton fonctionnaireRadio;
     @FXML private ToggleGroup CategorieRadio;
     @FXML private RadioButton agentContactuelleRadio;
+
+    @Autowired
+    private PersonnelRepository personnelRepository;
+    @Autowired
+    private MainService mainService;
 
     private final String[] ECHELON_A ={"A1","A2","A3"};
     private final String[] ECHELON_B ={"B1","B2"};
@@ -75,6 +88,28 @@ public class EmployeFormController implements Initializable{
 
     private void saveEmploye(ActionEvent event){
         MainController controller = MainController.getMainController();
+        Personnel p = createPersonnel();
+        if (!isSave){
+            TableView<Personnel> tableView = controller.getTableView();
+            Personnel p1 = tableView.getSelectionModel().getSelectedItem();
+            tableView.getItems().remove(p1);
+        }
+       mainService.launch(new Task<Personnel>() {
+            @Override
+            protected Personnel call() throws Exception {
+                return personnelRepository.save(p);
+            }
+            @Override
+            protected void succeeded() {
+                controller.getTableView().getItems().add(this.getValue());
+                FormDialog.close();
+                isSave = true;
+                resetForm();
+            }
+        });
+    }
+
+    private Personnel createPersonnel() {
         Personnel p = new Personnel();
         p.setNom(nom.getText());
         p.setLieuDeNaissance(lieuNaissance.getText());
@@ -88,18 +123,9 @@ public class EmployeFormController implements Initializable{
         p.setFonction(fonction.getText());
         p.setDateEntre(dateEntre.getValue());
         p.setPosition(positionCombo.getValue());
-        p.setSolde(45);
         p.setCategorieEmploye(fonctionnaireRadio.isSelected() ? CategorieEmploye.FONCTIONNAIRE : CategorieEmploye.AGENT_CONTRACTUEL);
         p.setRegime(regimeAnnuelleRadio.isSelected() ? Regime.ANNUEL : Regime.ANNUELLE_CUMULE);
-        if (!isSave){
-            TableView<Personnel> tableView = controller.getTableView();
-            Personnel p1 = tableView.getSelectionModel().getSelectedItem();
-            tableView.getItems().remove(p1);
-        }
-        controller.getTableView().getItems().add(p);
-        EmployeFormView.close();
-        isSave = true;
-        resetForm();
+        return p;
     }
 
     private void resetForm(){
@@ -140,15 +166,12 @@ public class EmployeFormController implements Initializable{
         initCombobox();
         initRadio();
     }
-
     public static EmployeFormController getEmployeFormController() {
         return employeFormController;
     }
-
     public static Boolean getIsSave() {
         return isSave;
     }
-
     public static void setIsSave(Boolean isSave) {
         EmployeFormController.isSave = isSave;
     }

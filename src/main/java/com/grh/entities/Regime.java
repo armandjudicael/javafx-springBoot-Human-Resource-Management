@@ -1,4 +1,4 @@
-package com.grh.grh.entities;
+package com.grh.entities;
 
 public enum Regime {
     ANNUEL,ANNUELLE_CUMULE
